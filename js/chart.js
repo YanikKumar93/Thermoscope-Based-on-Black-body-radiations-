@@ -120,7 +120,7 @@ function makeCanvasChart(canvas, datasets, xTitle = 'Wavelength (nm)', yTitle = 
   window.addEventListener('thermoscope:pagechange', redraw);
   if ('ResizeObserver' in window) {
     resizeObserver = new ResizeObserver(redraw);
-    resizeObserver.observe(canvas);
+    resizeObserver.observe(canvas.parentElement || canvas);
   }
   draw();
   return chart;

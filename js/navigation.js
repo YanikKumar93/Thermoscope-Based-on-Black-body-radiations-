@@ -16,7 +16,9 @@ export function initNavigation() {
     const crumb = document.getElementById('crumb-current');
     if (crumb) crumb.textContent = labels[page] || page.toUpperCase();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    window.dispatchEvent(new CustomEvent('thermoscope:pagechange', { detail: { page } }));
+    requestAnimationFrame(() => {
+      window.dispatchEvent(new CustomEvent('thermoscope:pagechange', { detail: { page } }));
+    });
   }
 
   document.querySelectorAll('.nav-item').forEach((button) => {
