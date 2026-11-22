@@ -29,6 +29,7 @@ export function initCompare(){
   button.addEventListener('click', render);
   ['compare-a','compare-b','compare-c'].forEach(id => {
     const input = document.getElementById(id);
+    input?.addEventListener('input', render);
     input?.addEventListener('change', render);
   });
   render();

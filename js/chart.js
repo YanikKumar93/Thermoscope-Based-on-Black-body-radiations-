@@ -140,6 +140,7 @@ export function makeCompareChart(canvas, temps) {
 }
 export function replaceCompareChart(chart, temps) {
   const colors = ['#ff9b4b', '#65d7e7', '#b79af2'];
-  chart.data.datasets = temps.map((T, i) => ({ label: `${T} K`, data: spectrum(T), borderColor: colors[i], fill: false, borderWidth: 2 }));
+  const datasets = temps.map((T, i) => ({ label: `${T} K`, data: spectrum(T), borderColor: colors[i], fill: false, borderWidth: 2 }));
+  chart.data.datasets.splice(0, chart.data.datasets.length, ...datasets);
   chart.update();
 }
