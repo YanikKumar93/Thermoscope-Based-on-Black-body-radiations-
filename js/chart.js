@@ -5,15 +5,31 @@ const TICK = '#81909e';
 
 function makeCanvasChart(canvas, datasets, xTitle = 'Wavelength (nm)', yTitle = 'Spectral radiance (W sr⁻¹ m⁻³)') {
   const ctx = canvas.getContext('2d');
-  const chart = { canvas, ctx, data: { datasets }, options: {}, update: draw, destroy() { canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerleave', onLeave); window.removeEventListener('resize', draw); window.removeEventListener('thermoscope:pagechange', draw); } };
   let bounds = null;
   let hoverPoint = null;
+  let resizeObserver = null;
+  const redraw = () => requestAnimationFrame(draw);
+  const chart = {
+    canvas,
+    ctx,
+    data: { datasets },
+    options: {},
+    update: draw,
+    destroy() {
+      canvas.removeEventListener('pointermove', onMove);
+      canvas.removeEventListener('pointerleave', onLeave);
+      window.removeEventListener('resize', redraw);
+      window.removeEventListener('thermoscope:pagechange', redraw);
+      if (resizeObserver) resizeObserver.disconnect();
+    }
+  };
 
   function draw() {
     if (!canvas || !ctx) return;
     const rect = canvas.getBoundingClientRect();
-    const width = Math.max(320, rect.width || canvas.clientWidth || 640);
-    const height = Math.max(240, rect.height || canvas.clientHeight || 320);
+    const parentRect = canvas.parentElement ? canvas.parentElement.getBoundingClientRect() : rect;
+    const width = Math.max(320, rect.width || parentRect.width || canvas.clientWidth || 640);
+    const height = Math.max(240, rect.height || parentRect.height || canvas.clientHeight || 320);
     const dpr = Math.max(1, window.devicePixelRatio || 1);
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
@@ -100,8 +116,12 @@ function makeCanvasChart(canvas, datasets, xTitle = 'Wavelength (nm)', yTitle = 
   function onLeave() { hoverPoint = null; draw(); }
   canvas.addEventListener('pointermove', onMove);
   canvas.addEventListener('pointerleave', onLeave);
-  window.addEventListener('resize', draw);
-  window.addEventListener('thermoscope:pagechange', draw);
+  window.addEventListener('resize', redraw);
+  window.addEventListener('thermoscope:pagechange', redraw);
+  if ('ResizeObserver' in window) {
+    resizeObserver = new ResizeObserver(redraw);
+    resizeObserver.observe(canvas);
+  }
   draw();
   return chart;
 }
